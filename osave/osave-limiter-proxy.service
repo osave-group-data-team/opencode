@@ -1,0 +1,18 @@
+[Unit]
+Description=OSave OpenCode Rate Limiter Proxy
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=%h/.nvm/versions/node/v24.18.0/bin/node %h/opencode-fork/osave/osave-limiter-proxy.mjs
+Restart=always
+RestartSec=5
+Environment="OSAVE_RATE_LIMITS_PATH=%h/opencode-fork/osave/osave-rate-limits.json"
+Environment="OSAVE_LIMITER_PORT=8787"
+
+EnvironmentFile=-%h/.config/opencode/osave-api-keys.env
+WorkingDirectory=%h/opencode-fork/osave
+
+[Install]
+WantedBy=default.target

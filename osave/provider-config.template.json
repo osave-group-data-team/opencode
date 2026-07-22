@@ -1,0 +1,120 @@
+{
+  "$description": "OSave provider config — merge into your opencode.json provider section. Uses the local limiter proxy at 127.0.0.1:8787.",
+  "note": "The baseURL points at the local limiter proxy which enforces per-model rate limits and forwards to the real Azure endpoint.",
+  "providers": {
+    "osave-dashboard-main": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OSave Dashboard Main",
+      "env": ["OSAVE_DASHBOARD_MAIN_API_KEY"],
+      "options": {
+        "baseURL": "http://127.0.0.1:8787/openai/v1",
+        "timeout": 600000,
+        "headerTimeout": 120000,
+        "chunkTimeout": 60000
+      },
+      "models": {
+        "DeepSeek-V4-Pro": {
+          "name": "DeepSeek-V4-Pro",
+          "reasoning": true, "temperature": true, "tool_call": true,
+          "modalities": { "input": ["text"], "output": ["text"] },
+          "limit": { "context": 1048576, "output": 32768 },
+          "options": { "reasoning_effort": "max" }
+        },
+        "DeepSeek-V4-Flash": {
+          "name": "DeepSeek-V4-Flash",
+          "reasoning": true, "temperature": true, "tool_call": true,
+          "modalities": { "input": ["text"], "output": ["text"] },
+          "limit": { "context": 1048576, "output": 32768 },
+          "options": { "reasoning_effort": "low" }
+        },
+        "Kimi-K2.7-Code": {
+          "name": "Kimi-K2.7-Code",
+          "reasoning": true, "temperature": true, "tool_call": true,
+          "modalities": { "input": ["text"], "output": ["text"] },
+          "limit": { "context": 262144, "output": 16384 },
+          "options": { "reasoning_effort": "high" }
+        }
+      }
+    },
+    "osave-dashboard-e-us": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OSave Dashboard E US",
+      "env": ["OSAVE_DASHBOARD_E_US_API_KEY"],
+      "options": {
+        "baseURL": "http://127.0.0.1:8787/openai/v1",
+        "timeout": 600000,
+        "headerTimeout": 120000,
+        "chunkTimeout": 60000
+      },
+      "models": {
+        "FW-DeepSeek-V4-Pro": {
+          "name": "FW-DeepSeek-V4-Pro",
+          "reasoning": true, "temperature": true, "tool_call": true,
+          "modalities": { "input": ["text"], "output": ["text"] },
+          "limit": { "context": 1048576, "output": 32768 },
+          "options": { "reasoning_effort": "high" }
+        }
+      }
+    },
+    "osave-dashboard-e-us-2": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OSave Dashboard E US 2",
+      "env": ["OSAVE_DASHBOARD_E_US_2_API_KEY"],
+      "options": {
+        "baseURL": "http://127.0.0.1:8787/openai/v1",
+        "timeout": 600000,
+        "headerTimeout": 120000,
+        "chunkTimeout": 60000
+      },
+      "models": {
+        "FW-Kimi-K2.7-Code": {
+          "name": "FW-Kimi-K2.7-Code",
+          "reasoning": true, "temperature": true, "tool_call": true,
+          "modalities": { "input": ["text"], "output": ["text"] },
+          "limit": { "context": 262144, "output": 16384 },
+          "options": { "reasoning_effort": "high" }
+        }
+      }
+    },
+    "osave-dashboard-wc-us": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OSave Dashboard WC US",
+      "env": ["OSAVE_DASHBOARD_WC_US_API_KEY"],
+      "options": {
+        "baseURL": "http://127.0.0.1:8787/openai/v1",
+        "timeout": 600000,
+        "headerTimeout": 120000,
+        "chunkTimeout": 60000
+      },
+      "models": {
+        "FW-DeepSeek-V4-Pro": {
+          "name": "FW-DeepSeek-V4-Pro",
+          "reasoning": true, "temperature": true, "tool_call": true,
+          "modalities": { "input": ["text"], "output": ["text"] },
+          "limit": { "context": 1048576, "output": 32768 },
+          "options": { "reasoning_effort": "high" }
+        }
+      }
+    },
+    "osave-dashboard-c-us": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OSave Dashboard C US",
+      "env": ["OSAVE_DASHBOARD_C_US_API_KEY"],
+      "options": {
+        "baseURL": "http://127.0.0.1:8787/openai/v1",
+        "timeout": 600000,
+        "headerTimeout": 120000,
+        "chunkTimeout": 60000
+      },
+      "models": {
+        "FW-Kimi-K2.7-Code": {
+          "name": "FW-Kimi-K2.7-Code",
+          "reasoning": true, "temperature": true, "tool_call": true,
+          "modalities": { "input": ["text"], "output": ["text"] },
+          "limit": { "context": 262144, "output": 16384 },
+          "options": { "reasoning_effort": "high" }
+        }
+      }
+    }
+  }
+}
