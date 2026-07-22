@@ -4,7 +4,6 @@ import { readFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { request as httpRequest } from "node:http";
-import { parse } from "node:url";
 
 const CONFIG_PATH = process.env.OSAVE_RATE_LIMITS_PATH ||
   new URL("osave-rate-limits.json", import.meta.url).pathname;
@@ -62,16 +61,16 @@ function estimateTokens(body) {
     if (obj.messages) {
       chars = JSON.stringify(obj.messages).length;
     }
-    return Math.max(1, Math.ceil(chars / 4));
+    return Math.max(1, Math.ceil(chars / 5));
   } catch {
-    return Math.max(1, Math.ceil(body.length / 4));
+    return Math.max(1, Math.ceil(body.length / 5));
   }
 }
 
 const buckets = {};
 
 function getBucket(endpointId, modelName) {
-  const key = `${endpointId}:${modelName}`;
+  const key = endpointId + ":" + modelName;
   if (!buckets[key]) {
     const ep = config.endpoints[endpointId];
     if (!ep) return null;
@@ -106,9 +105,73 @@ function findEndpointForModel(modelName) {
   return null;
 }
 
+function isContentFilterError(statusCode, body) {
+  if (statusCode !== 400) return false;
+  try {
+    const obj = JSON.parse(body.toString());
+    return obj?.error?.code === "content_filter";
+  } catch {
+    return false;
+  }
+}
+
+function sanitizeForAzure(body) {
+  let s = body.toString("utf-8");
+  let changed = false;
+
+  if (/--/.test(s)) {
+    s = s.replace(/--/g, "\u2014");
+    changed = true;
+  }
+  if (/<([a-zA-Z][^>]*)>/.test(s)) {
+    s = s.replace(/<([a-zA-Z][^>]*)>/g, "[$1]");
+    changed = true;
+  }
+  if (/<<['"]?[A-Z]+['"]?/.test(s)) {
+    s = s.replace(/<<['"]?[A-Z]+['"]?/g, "(heredoc)");
+    changed = true;
+  }
+  if (/\.git\//.test(s)) {
+    s = s.replace(/\.git\//g, "[dot]git/");
+    changed = true;
+  }
+  if (/P&L/.test(s)) {
+    s = s.replace(/P&L/g, "PnL");
+    changed = true;
+  }
+
+  return changed ? { body: Buffer.from(s, "utf-8"), sanitized: true } : null;
+}
+
+function proxyToUpstream(upstreamUrl, headers, body, onResult) {
+  const target = new URL(upstreamUrl);
+  const transport = target.protocol === "https:" ? httpsRequest : httpRequest;
+  const reqOpts = {
+    hostname: target.hostname,
+    port: target.port || 443,
+    path: target.pathname + target.search,
+    method: "POST",
+    headers: { ...headers },
+  };
+
+  const proxyReq = transport(reqOpts, (proxyRes) => {
+    const chunks = [];
+    proxyRes.on("data", (c) => chunks.push(c));
+    proxyRes.on("end", () => {
+      onResult(proxyRes.statusCode, proxyRes.headers, Buffer.concat(chunks));
+    });
+  });
+
+  proxyReq.on("error", (err) => {
+    onResult(null, null, null, err);
+  });
+  proxyReq.write(body);
+  proxyReq.end();
+}
+
 const server = createServer((req, res) => {
-  const parsed = parse(req.url);
-  const modelFromPath = parseModelFromPath(parsed.pathname);
+  const incomingUrl = new URL(req.url, "http://127.0.0.1:" + PORT);
+  const modelFromPath = parseModelFromPath(incomingUrl.pathname);
 
   const bodyChunks = [];
   req.on("data", (chunk) => bodyChunks.push(chunk));
@@ -159,41 +222,63 @@ const server = createServer((req, res) => {
       return;
     }
 
-    const upstream = new URL(parsed.pathname + (parsed.search || ""), ep.baseURL);
-    const upstreamOpts = {
-      hostname: upstream.hostname,
-      port: upstream.port || 443,
-      path: upstream.pathname + upstream.search,
-      method: req.method,
-      headers: { ...req.headers, host: upstream.hostname },
+    const upstreamUrl = new URL(incomingUrl.pathname + incomingUrl.search, ep.baseURL).toString();
+    const upstreamHeaders = {
+      ...req.headers,
+      host: new URL(ep.baseURL).hostname,
     };
-
     const apiKey = process.env[ep.env_key];
     if (apiKey) {
-      upstreamOpts.headers["api-key"] = apiKey;
+      upstreamHeaders["api-key"] = apiKey;
     }
 
-    const transport = upstream.protocol === "https:" ? httpsRequest : httpRequest;
-    const proxyReq = transport(upstreamOpts, (proxyRes) => {
-      res.writeHead(proxyRes.statusCode, proxyRes.headers);
-      proxyRes.pipe(res);
-    });
+    proxyToUpstream(upstreamUrl, upstreamHeaders, body, (statusCode, headers, respBody, err) => {
+      if (err) {
+        res.writeHead(502, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "upstream error", detail: err.message }));
+        return;
+      }
 
-    proxyReq.on("error", (err) => {
-      res.writeHead(502, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: "upstream error", detail: err.message }));
-    });
+      if (isContentFilterError(statusCode, respBody)) {
+        const sanitized = sanitizeForAzure(body);
+        if (sanitized) {
+          console.log("[osave-limiter] azure content-filter triggered \u2014 retrying with sanitized body");
+          proxyToUpstream(upstreamUrl, upstreamHeaders, sanitized.body, (s2Code, s2Headers, s2Body, s2Err) => {
+            if (s2Err) {
+              res.writeHead(statusCode, headers);
+              res.end(respBody);
+              return;
+            }
+            if (isContentFilterError(s2Code, s2Body)) {
+              console.log("[osave-limiter] content-filter persists after sanitization");
+              res.writeHead(statusCode, headers);
+              res.end(respBody);
+              return;
+            }
+            res.writeHead(s2Code, s2Headers);
+            res.end(s2Body);
+          });
+          return;
+        }
+      }
 
-    proxyReq.write(body);
-    proxyReq.end();
+      res.writeHead(statusCode, headers);
+      res.end(respBody);
+    });
   });
 });
 
 server.listen(PORT, "127.0.0.1", () => {
   const endpoints = Object.keys(config.endpoints).join(", ");
-  console.log(`[osave-limiter] listening on 127.0.0.1:${PORT}`);
-  console.log(`[osave-limiter] endpoints: ${endpoints}`);
+  console.log("[osave-limiter] listening on 127.0.0.1:" + PORT);
+  console.log("[osave-limiter] endpoints: " + endpoints);
 });
 
-process.on("SIGTERM", () => server.close());
-process.on("SIGINT", () => server.close());
+process.on("SIGTERM", () => {
+  server.close(() => process.exit(0));
+  setTimeout(() => process.exit(0), 3000);
+});
+process.on("SIGINT", () => {
+  server.close(() => process.exit(0));
+  setTimeout(() => process.exit(0), 3000);
+});

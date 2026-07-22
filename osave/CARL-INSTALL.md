@@ -32,6 +32,10 @@ Do not hand-copy the config from this doc — `osave/opencode-config.carl.json` 
 single source of truth; a copy pasted here would drift out of sync with it exactly
 like the old inline block used to.
 
+```
+
+Create `~/.config/opencode/opencode.json`:
+
 Then:
 
 ```bash
