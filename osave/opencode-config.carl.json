@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "osave-dashboard-wc-us/FW-DeepSeek-V4-Pro",
+"model": "osave-dashboard-wc-us/FW-DeepSeek-V4-Pro",
   "enabled_providers": [
     "osave-dashboard-main",
     "osave-dashboard-e-us",
