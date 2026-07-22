@@ -1,0 +1,52 @@
+{
+  "$description": "OSave model rate limits — edit this file to update limits. TPM = tokens per minute, RPM = requests per minute.",
+  "endpoints": {
+    "osave-dashboard-main": {
+      "baseURL": "https://osave-dashboard-main-resource.openai.azure.com/openai/v1",
+      "env_key": "OSAVE_DASHBOARD_MAIN_API_KEY",
+      "region": "Global",
+      "tier": "Global Standard",
+      "models": {
+        "DeepSeek-V4-Pro": { "type": "rpm", "limit": 1000, "unit": "RPM" },
+        "DeepSeek-V4-Flash": { "type": "rpm", "limit": 250, "unit": "RPM" },
+        "Kimi-K2.7-Code": { "type": "tpm", "limit": 100000, "unit": "TPM" }
+      }
+    },
+    "osave-dashboard-e-us": {
+      "baseURL": "https://osave-dashboard-e-us-resource.openai.azure.com/openai/v1",
+      "env_key": "OSAVE_DASHBOARD_E_US_API_KEY",
+      "region": "East US",
+      "tier": "Data Zone Standard",
+      "models": {
+        "FW-DeepSeek-V4-Pro": { "type": "tpm", "limit": 500000, "unit": "TPM" }
+      }
+    },
+    "osave-dashboard-e-us-2": {
+      "baseURL": "https://osave-dashboard-e-us-2-resource.openai.azure.com/openai/v1",
+      "env_key": "OSAVE_DASHBOARD_E_US_2_API_KEY",
+      "region": "East US 2",
+      "tier": "Data Zone Standard",
+      "models": {
+        "FW-Kimi-K2.7-Code": { "type": "tpm", "limit": 500000, "unit": "TPM" }
+      }
+    },
+    "osave-dashboard-wc-us": {
+      "baseURL": "https://osave-dashboard-wc-us-resource.openai.azure.com/openai/v1",
+      "env_key": "OSAVE_DASHBOARD_WC_US_API_KEY",
+      "region": "West Central US",
+      "tier": "Data Zone Standard",
+      "models": {
+        "FW-DeepSeek-V4-Pro": { "type": "tpm", "limit": 500000, "unit": "TPM" }
+      }
+    },
+    "osave-dashboard-c-us": {
+      "baseURL": "https://osave-dashboard-c-us-resource.openai.azure.com/openai/v1",
+      "env_key": "OSAVE_DASHBOARD_C_US_API_KEY",
+      "region": "Central US",
+      "tier": "Data Zone Standard",
+      "models": {
+        "FW-Kimi-K2.7-Code": { "type": "tpm", "limit": 500000, "unit": "TPM" }
+      }
+    }
+  }
+}
