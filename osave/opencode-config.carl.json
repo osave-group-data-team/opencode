@@ -9,6 +9,13 @@
     "osave-dashboard-c-us"
   ],
   "share": "disabled",
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 65536,
+    "tail_turns": 3,
+    "preserve_recent_tokens": 32768
+  },
   "provider": {
     "osave-dashboard-main": {
       "npm": "@ai-sdk/openai-compatible",
@@ -121,6 +128,72 @@
       }
     }
   },
+  "permission": {
+    "edit": {
+      "*": "deny",
+      ".claude/worktrees/**": "ask",
+      "**/.opencode/**": "ask",
+      "**/AGENTS.md": "ask",
+      "~/.config/opencode/**": "ask"
+    },
+    "read": {
+      "*": "ask",
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "**/.env*": "deny",
+      "**/secrets/**": "deny",
+      "**/*.pem": "deny",
+      "**/*.key": "deny",
+      "**/*.pfx": "deny",
+      "**/*.p12": "deny",
+      "**/credentials.json": "deny",
+      "**/secrets.json": "deny",
+      "**/.azure/**": "deny",
+      "**/.fabric/**": "deny",
+      "**/.fab/**": "deny",
+      "**/.ssh/**": "deny",
+      "**/.gnupg/**": "deny",
+      "**/.aws/**": "deny",
+      "**/.kube/**": "deny",
+      "**/.npmrc": "deny",
+      "**/.netrc": "deny",
+      "**/.git-credentials": "deny",
+      "**/.config/gh/hosts.yml": "deny",
+      "**/.codex/auth.json": "deny",
+      "**/opencode/auth.json": "deny"
+    },
+    "bash": {
+      "*": "ask",
+      "git reset --hard*": "deny",
+      "git clean *-f*": "deny",
+      "git checkout -- *": "deny",
+      "git restore *": "deny",
+      "rm -rf *": "deny",
+      "sudo *": "deny",
+      "env": "deny",
+      "env *": "deny",
+      "printenv": "deny",
+      "printenv *": "deny"
+    },
+    "glob": "ask",
+    "grep": "ask",
+    "list": "ask",
+    "task": "ask",
+    "external_directory": "ask",
+    "webfetch": "ask",
+    "websearch": "ask",
+    "lsp": "ask",
+    "doom_loop": "ask",
+    "skill": "ask"
+  },
+  "tool_output": {
+    "max_lines": 4000,
+    "max_bytes": 102400
+  },
+  "experimental": {
+    "mcp_timeout": 30000
+  },
+  "autoupdate": false,
   "agent": {
     "general":  { "model": "osave-dashboard-e-us/FW-DeepSeek-V4-Pro", "variant": "medium" },
     "explore":  { "model": "osave-dashboard-e-us-2/FW-Kimi-K2.7-Code", "variant": "high" },
