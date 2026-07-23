@@ -140,7 +140,8 @@ const server = createServer((req, res) => {
     }
 
     if (!bucket.acquire(cost)) {
-      const retryAfter = Math.max(1, Math.ceil((cost - bucket.tokens()) / (ml.limit / 60_000)));
+      const retryAfterMs = Math.max(1, Math.ceil((cost - bucket.tokens()) / (ml.limit / 60_000)));
+      const retryAfter = Math.max(1, Math.ceil(retryAfterMs / 1000));
       res.writeHead(429, {
         "Content-Type": "application/json",
         "Retry-After": String(retryAfter),
