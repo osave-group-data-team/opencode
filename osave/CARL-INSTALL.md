@@ -22,140 +22,15 @@ git clone https://github.com/osave-group-data-team/opencode.git ~/opencode-fork
 bash ~/opencode-fork/osave/scripts/setup-keys.sh
 source ~/.bashrc
 
-# 3. Create opencode config
+# 3. Copy the ready-to-copy config (includes providers, agent role mapping,
+#    and the hardened permission/compaction blocks — same as Carlos's)
 mkdir -p ~/.config/opencode
+cp ~/opencode-fork/osave/opencode-config.carl.json ~/.config/opencode/opencode.json
 ```
 
-Create `~/.config/opencode/opencode.json`:
-
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "model": "osave-dashboard-e-us/FW-DeepSeek-V4-Pro",
-  "enabled_providers": [
-    "osave-dashboard-main",
-    "osave-dashboard-e-us",
-    "osave-dashboard-e-us-2",
-    "osave-dashboard-wc-us",
-    "osave-dashboard-c-us"
-  ],
-  "provider": {
-    "osave-dashboard-main": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "OSave Dashboard Main",
-      "env": ["OSAVE_DASHBOARD_MAIN_API_KEY"],
-      "options": {
-        "baseURL": "http://127.0.0.1:8787/openai/v1",
-        "timeout": 600000,
-        "headerTimeout": 120000,
-        "chunkTimeout": 60000
-      },
-      "models": {
-        "DeepSeek-V4-Pro": {
-          "name": "DeepSeek-V4-Pro",
-          "reasoning": true, "temperature": true, "tool_call": true,
-          "modalities": { "input": ["text"], "output": ["text"] },
-          "limit": { "context": 1048576, "output": 32768 },
-          "options": { "reasoning_effort": "max" },
-          "variants": {
-            "high": { "reasoning_effort": "max" },
-            "medium": { "reasoning_effort": "max" }
-          }
-        },
-        "DeepSeek-V4-Flash": {
-          "name": "DeepSeek-V4-Flash",
-          "reasoning": true, "temperature": true, "tool_call": true,
-          "modalities": { "input": ["text"], "output": ["text"] },
-          "limit": { "context": 1048576, "output": 32768 },
-          "options": { "reasoning_effort": "low" }
-        },
-        "Kimi-K2.7-Code": {
-          "name": "Kimi-K2.7-Code",
-          "reasoning": true, "temperature": true, "tool_call": true,
-          "modalities": { "input": ["text"], "output": ["text"] },
-          "limit": { "context": 262144, "output": 16384 }
-        }
-      }
-    },
-    "osave-dashboard-e-us": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "OSave Dashboard E US",
-      "env": ["OSAVE_DASHBOARD_E_US_API_KEY"],
-      "options": {
-        "baseURL": "http://127.0.0.1:8787/openai/v1",
-        "timeout": 600000, "headerTimeout": 120000, "chunkTimeout": 60000
-      },
-      "models": {
-        "FW-DeepSeek-V4-Pro": {
-          "name": "FW-DeepSeek-V4-Pro",
-          "reasoning": true, "temperature": true, "tool_call": true,
-          "modalities": { "input": ["text"], "output": ["text"] },
-          "limit": { "context": 1048576, "output": 32768 },
-          "options": { "reasoning_effort": "max" }
-        }
-      }
-    },
-    "osave-dashboard-e-us-2": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "OSave Dashboard E US 2",
-      "env": ["OSAVE_DASHBOARD_E_US_2_API_KEY"],
-      "options": {
-        "baseURL": "http://127.0.0.1:8787/openai/v1",
-        "timeout": 600000, "headerTimeout": 120000, "chunkTimeout": 60000
-      },
-      "models": {
-        "FW-Kimi-K2.7-Code": {
-          "name": "FW-Kimi-K2.7-Code",
-          "reasoning": true, "temperature": true, "tool_call": true,
-          "modalities": { "input": ["text"], "output": ["text"] },
-          "limit": { "context": 262144, "output": 16384 }
-        }
-      }
-    },
-    "osave-dashboard-wc-us": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "OSave Dashboard WC US",
-      "env": ["OSAVE_DASHBOARD_WC_US_API_KEY"],
-      "options": {
-        "baseURL": "http://127.0.0.1:8787/openai/v1",
-        "timeout": 600000, "headerTimeout": 120000, "chunkTimeout": 60000
-      },
-      "models": {
-        "FW-DeepSeek-V4-Pro": {
-          "name": "FW-DeepSeek-V4-Pro",
-          "reasoning": true, "temperature": true, "tool_call": true,
-          "modalities": { "input": ["text"], "output": ["text"] },
-          "limit": { "context": 1048576, "output": 32768 }
-        }
-      }
-    },
-    "osave-dashboard-c-us": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "OSave Dashboard C US",
-      "env": ["OSAVE_DASHBOARD_C_US_API_KEY"],
-      "options": {
-        "baseURL": "http://127.0.0.1:8787/openai/v1",
-        "timeout": 600000, "headerTimeout": 120000, "chunkTimeout": 60000
-      },
-      "models": {
-        "FW-Kimi-K2.7-Code": {
-          "name": "FW-Kimi-K2.7-Code",
-          "reasoning": true, "temperature": true, "tool_call": true,
-          "modalities": { "input": ["text"], "output": ["text"] },
-          "limit": { "context": 262144, "output": 16384 }
-        }
-      }
-    }
-  },
-  "agent": {
-    "general":  { "model": "osave-dashboard-e-us/FW-DeepSeek-V4-Pro", "variant": "medium" },
-    "explore":  { "model": "osave-dashboard-e-us-2/FW-Kimi-K2.7-Code", "variant": "high" },
-    "build":    { "model": "osave-dashboard-e-us/FW-DeepSeek-V4-Pro", "variant": "high" },
-    "plan":     { "model": "osave-dashboard-e-us/FW-DeepSeek-V4-Pro", "variant": "high" },
-    "review":   { "model": "osave-dashboard-e-us-2/FW-Kimi-K2.7-Code", "variant": "high" }
-  }
-}
-```
+Do not hand-copy the config from this doc — `osave/opencode-config.carl.json` is the
+single source of truth; a copy pasted here would drift out of sync with it exactly
+like the old inline block used to.
 
 Then:
 
