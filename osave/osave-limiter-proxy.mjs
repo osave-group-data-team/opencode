@@ -84,6 +84,16 @@ function getBucket(endpointId, modelName) {
 
 const PORT = parseInt(process.env.OSAVE_LIMITER_PORT || "8787", 10);
 
+function parseModelFromBody(body) {
+  if (!body || body.length === 0) return null;
+  try {
+    const obj = JSON.parse(body.toString());
+    return obj.model || null;
+  } catch {
+    return null;
+  }
+}
+
 function parseModelFromPath(pathname) {
   const m = pathname.match(/\/deployments\/([^/]+)\//);
   return m ? m[1] : null;
@@ -98,26 +108,28 @@ function findEndpointForModel(modelName) {
 
 const server = createServer((req, res) => {
   const parsed = parse(req.url);
-  const modelName = parseModelFromPath(parsed.pathname);
-  const endpointId = findEndpointForModel(modelName);
-
-  if (!endpointId || !modelName) {
-    res.writeHead(502, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ error: "unknown model deployment" }));
-    return;
-  }
-
-  const bucket = getBucket(endpointId, modelName);
-  if (!bucket) {
-    res.writeHead(502, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ error: "no rate limit config for model" }));
-    return;
-  }
+  const modelFromPath = parseModelFromPath(parsed.pathname);
 
   const bodyChunks = [];
   req.on("data", (chunk) => bodyChunks.push(chunk));
   req.on("end", () => {
     const body = Buffer.concat(bodyChunks);
+    const modelName = modelFromPath || parseModelFromBody(body);
+    const endpointId = modelName ? findEndpointForModel(modelName) : null;
+
+    if (!endpointId || !modelName) {
+      res.writeHead(502, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "unknown model deployment" }));
+      return;
+    }
+
+    const bucket = getBucket(endpointId, modelName);
+    if (!bucket) {
+      res.writeHead(502, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "no rate limit config for model" }));
+      return;
+    }
+
     const estimatedTokens = estimateTokens(body);
     const ep = config.endpoints[endpointId];
     const ml = ep.models[modelName];
