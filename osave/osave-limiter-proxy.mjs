@@ -61,9 +61,9 @@ function estimateTokens(body) {
     if (obj.messages) {
       chars = JSON.stringify(obj.messages).length;
     }
-    return Math.max(1, Math.ceil(chars / 5));
+    return Math.max(1, Math.ceil(chars / 8));
   } catch {
-    return Math.max(1, Math.ceil(body.length / 5));
+    return Math.max(1, Math.ceil(body.length / 8));
   }
 }
 
