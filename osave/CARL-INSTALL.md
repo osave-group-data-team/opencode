@@ -49,7 +49,7 @@ sleep 1 && curl -s http://127.0.0.1:8787/openai/v1/models | head -20
 ## Verify end-to-end
 
 ```bash
-opencode run -m osave-dashboard-e-us/FW-DeepSeek-V4-Pro 'Reply CARL_INSTALL_OK.'
+opencode run -m osave-dashboard-wc-us/FW-DeepSeek-V4-Pro 'Reply CARL_INSTALL_OK.'
 ```
 
 Expected: `CARL_INSTALL_OK.`

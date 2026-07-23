@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "osave-dashboard-e-us/FW-DeepSeek-V4-Pro",
+  "model": "osave-dashboard-wc-us/FW-DeepSeek-V4-Pro",
   "enabled_providers": [
     "osave-dashboard-main",
     "osave-dashboard-e-us",
@@ -195,13 +195,13 @@
   },
   "autoupdate": false,
   "agent": {
-    "general":  { "model": "osave-dashboard-e-us/FW-DeepSeek-V4-Pro", "variant": "medium" },
-    "explore":  { "model": "osave-dashboard-e-us-2/FW-Kimi-K2.7-Code", "variant": "high" },
-    "build":    { "model": "osave-dashboard-e-us/FW-DeepSeek-V4-Pro", "variant": "high" },
-    "plan":     { "model": "osave-dashboard-e-us/FW-DeepSeek-V4-Pro", "variant": "high" },
-    "review":   { "model": "osave-dashboard-e-us-2/FW-Kimi-K2.7-Code", "variant": "high" },
-    "compaction": { "model": "osave-dashboard-e-us-2/FW-Kimi-K2.7-Code", "variant": "high" },
-    "title":    { "model": "osave-dashboard-e-us-2/FW-Kimi-K2.7-Code", "variant": "high" },
-    "summary":  { "model": "osave-dashboard-e-us-2/FW-Kimi-K2.7-Code", "variant": "high" }
+    "general":  { "model": "osave-dashboard-wc-us/FW-DeepSeek-V4-Pro", "variant": "medium" },
+    "explore":  { "model": "osave-dashboard-c-us/FW-Kimi-K2.7-Code", "variant": "high" },
+    "build":    { "model": "osave-dashboard-wc-us/FW-DeepSeek-V4-Pro", "variant": "high" },
+    "plan":     { "model": "osave-dashboard-wc-us/FW-DeepSeek-V4-Pro", "variant": "high" },
+    "review":   { "model": "osave-dashboard-c-us/FW-Kimi-K2.7-Code", "variant": "high" },
+    "compaction": { "model": "osave-dashboard-c-us/FW-Kimi-K2.7-Code", "variant": "high" },
+    "title":    { "model": "osave-dashboard-c-us/FW-Kimi-K2.7-Code", "variant": "high" },
+    "summary":  { "model": "osave-dashboard-c-us/FW-Kimi-K2.7-Code", "variant": "high" }
   }
 }
